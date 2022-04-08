@@ -91,8 +91,8 @@ class Attendance(models.Model):
     intern = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name='intern')
     status = models.BooleanField(default=False)
     date = models.DateField(auto_now_add=True)
-    start_time = models.TimeField(default=datetime.now().time())
-    end_time = models.TimeField(default=datetime.now().time())                                        
+    work_start_time = models.TimeField(default=datetime.now().time())
+    work_end_time = models.TimeField(default=datetime.now().time())                                        
     
     class Meta:
         ordering: ['-date']
