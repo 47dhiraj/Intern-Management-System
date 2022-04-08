@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
@@ -7,6 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from datetime import datetime
 
 
 class UserManager(BaseUserManager):
@@ -60,8 +62,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         }
 
 
-
-
 @receiver(post_save, sender=User) 
 def user_post_save_receiver(sender, instance, created, *args, **kwargs): 
     if created:
@@ -71,3 +71,31 @@ def user_post_save_receiver(sender, instance, created, *args, **kwargs):
 
 
 
+class Task(models.Model):
+    tasktitle = models.CharField(max_length=300, unique=True, db_index=True)
+    assignee = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name='assignee')
+    assignor = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name='assignor')
+    is_completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add =True)                                        
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering: ['-updated_at']
+
+    def __str__(self):
+        return self.tasktitle
+
+
+
+class Attendance(models.Model):
+    intern = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name='intern')
+    status = models.BooleanField(default=False)
+    date = models.DateField(auto_now_add=True)
+    start_time = models.TimeField(default=datetime.now().time())
+    end_time = models.TimeField(default=datetime.now().time())                                        
+    
+    class Meta:
+        ordering: ['-date']
+
+    def __str__(self):
+        return self.intern.username + ' ' + str(self.date)
