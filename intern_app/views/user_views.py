@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework import generics, status, views, permissions
 from rest_framework.exceptions import AuthenticationFailed
 
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -54,6 +54,42 @@ class RegisterView(generics.GenericAPIView):
         user_data['detail']= 'Registered successfully' 
         return Response(user_data, status=status.HTTP_201_CREATED)
         
+
+
+class AdminRegisterView(generics.GenericAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = RegisterSerializer
+
+    @swagger_auto_schema(operation_summary = "Add Admin")
+    def post(self, request):
+        """
+            ## Add Admin.
+
+            Only Admin User can access this url & it requires the following input paramters :
+            ```
+                username: string
+                email: string
+                password: string
+            ```
+        """
+        user = request.data
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)                                               
+        serializer.save()                                                                      
+        user_data = serializer.data
+
+        user = User.objects.get(email=user_data['email'])
+
+        if not user.is_staff:
+            user.is_staff = True
+            user.is_superuser = True
+            user.is_supervisor = True
+            user.is_intern = False  
+            user.save()               
+
+        user_data['detail']= 'Admin added successfully' 
+        return Response(user_data, status=status.HTTP_201_CREATED)
+
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

@@ -12,6 +12,9 @@ urlpatterns = [
     # URL for Registration
     path('register/', user_views.RegisterView.as_view(), name="register"),
 
+    # URL for Registration
+    path('register/admin/', user_views.AdminRegisterView.as_view(), name="register"),
+
     # URL for logging in the user
     path('login/', user_views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
 
