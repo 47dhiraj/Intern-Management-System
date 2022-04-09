@@ -20,7 +20,7 @@ class UserManager(BaseUserManager):
         if email is None:
             raise TypeError('User should have a Email')
 
-        user = self.model(username=username, email=self.normalize_email(email))                 
+        user = self.model(username=username, email=self.normalize_email(email))
         user.set_password(password)      
         user.save()                                                                           
         return user                                                                            
@@ -30,7 +30,7 @@ class UserManager(BaseUserManager):
         user.is_superuser = True
         user.is_staff = True
         user.is_supervisor = True
-        user.is_intern = False  
+        user.is_intern = False
         user.save()                                                                             
         return user                                                                            
 
@@ -51,8 +51,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()                                                                     
 
-    def __str__(self):
-        return self.email
+    # def __str__(self):
+    #     return self.email
 
     def tokens(self):
         refresh = RefreshToken.for_user(self)
@@ -67,6 +67,7 @@ def user_post_save_receiver(sender, instance, created, *args, **kwargs):
     if created:
         instance.is_active = True
         instance.is_verified = True
+        instance.set_password(instance.password)
         instance.save()
 
 

@@ -60,7 +60,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'isSupervisor', 'isIntern', 'created_at', 'updated_at']
-        exclude = ['password']
 
     def get_isSupervisor(self, obj):                            
         return obj.is_staff
@@ -108,9 +107,12 @@ class LogoutSerializer(serializers.Serializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    slug = serializers.SerializerMethodField()              # SerializerMethodField() ko help batw model ma nai navako data lai serialize garera frontend ma pathauna cha vani yesari pathauna sakincha
+    slug = serializers.SerializerMethodField(read_only=True)              # SerializerMethodField() ko help batw model ma nai navako data lai serialize garera frontend ma pathauna cha vani yesari pathauna sakincha
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
+    assignee = UserSerializer()
+    assignor = UserSerializer()
+
 
     class Meta:
         model = Task
