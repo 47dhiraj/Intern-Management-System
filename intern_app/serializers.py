@@ -1,10 +1,14 @@
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.validators import ValidationError
 
-from .models import User
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+
+from .models import User, Task, Attendance
 
 from validate_email import validate_email
 
-from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+import re                                                  
+from django.utils.text import slugify
 
 
 
@@ -86,7 +90,6 @@ class UserSerializerWithToken(UserSerializer):
         return tokens
 
 
-
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
     default_error_message = {'bad_token': ('Token expired or not valid') }
@@ -100,3 +103,39 @@ class LogoutSerializer(serializers.Serializer):
             RefreshToken(self.token).blacklist()                            
         except TokenError:
             raise serializers.ValidationError('Token expired or not valid')
+
+
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    slug = serializers.SerializerMethodField()              # SerializerMethodField() ko help batw model ma nai navako data lai serialize garera frontend ma pathauna cha vani yesari pathauna sakincha
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = Task
+        fields = ['tasktitle', 'assignee', 'assignor', 'slug', 'is_completed', 'created_at', 'updated_at']
+        # fields = '__all__'
+
+
+    def get_slug(self, obj):                    # custom function for SerializerMethodField()
+        return slugify(obj.tasktitle)
+
+
+    def validate(self, validated_data):         # validate() is serializers inbuilt method for validating data before saving into models or tables
+        if validated_data.get('tasktitle'):
+            tasktitle = validated_data.get('tasktitle')
+            regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+
+            if len(tasktitle) < 3:
+                raise ValidationError(detail="Task Title must be more than 3 characters", code=status.HTTP_406_NOT_ACCEPTABLE) 
+
+            if not regex.search(tasktitle) == None:
+                raise ValidationError(detail="Task Title should not contain special characters", code=status.HTTP_406_NOT_ACCEPTABLE)
+            
+        return validated_data
+
+
+
+
+
