@@ -15,7 +15,7 @@ from ..models import User, Task
 from ..permissions import IsAssignee
 
 
-# yo talako TaskViewSet vanni class le ModelViewSet lai extend/inherit gareko cha
+
 class TaskViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAssignee]
     model = Task
@@ -24,15 +24,42 @@ class TaskViewSet(viewsets.ModelViewSet):
     lookup_field = 'id'
 
 
-    # Overriding inbuilt methods like list(), retrieve(), create(), update(), partial_update(), destroy()
-
     def list(self, request):
         tasks = self.model.objects.filter(Q(assignee=request.user) | Q(assignor=request.user))
         serializer = self.serializer_class(tasks, many=True)
-        return Response(serializer.data, status=200)
+        return Response(serializer.data, status= status.HTTP_200_OK)
+    
+
+    def retrieve(self, request, id):
+        task = self.model.objects.get(id=id)
+
+        if task.assignee == request.user or request.user.is_superuser:
+            serializer = self.serializer_class(task)
+            return Response(serializer.data, status= status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Unauthroized to access the task'}, status=status.HTTP_403_FORBIDDEN)
+        
+
+
+
+        
 
 
 
 
+
+
+
+
+
+
+
+   
+
+
+
+
+
+  
 
 
