@@ -33,11 +33,14 @@ class TaskViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, id):
         task = self.model.objects.get(id=id)
 
-        if task.assignee == request.user or request.user.is_superuser:
-            serializer = self.serializer_class(task)
-            return Response(serializer.data, status= status.HTTP_200_OK)
-        else:
+        if task:
+            if task.assignee == request.user or request.user.is_superuser:
+                serializer = self.serializer_class(task)
+                return Response(serializer.data, status= status.HTTP_200_OK)
+            
             return Response({'error': 'Unauthroized to access the task'}, status=status.HTTP_403_FORBIDDEN)
+        
+        return Response({'error': 'Task does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         
 
     def create(self, request):
@@ -53,53 +56,74 @@ class TaskViewSet(viewsets.ModelViewSet):
                     status= status.HTTP_201_CREATED,
                     data= serializer.data
                     )
-            else:
-                return Response(
-                    data= serializer.errors,
-                    status= status.HTTP_400_BAD_REQUEST
-                    )
+            
+            return Response(
+                data= serializer.errors,
+                status= status.HTTP_400_BAD_REQUEST
+                )
         
         else:
             return Response({'error': 'Unauthroized to create the task'}, status=status.HTTP_403_FORBIDDEN)
     
 
+
     def update(self, request, id=None):
         task = self.model.objects.get(id=id)
 
-        if task.assignor == request.user:
-            request.data['assignor'] = request.user.id
+        if task:
+            if task.assignor == request.user:
+                request.data['assignor'] = request.user.id
+                
+                serializer=self.serializer_class(task, data= request.data)
+
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(data = serializer.data, status = status.HTTP_200_OK)
+
+
+                return Response(data=serializer.errors, status = status.HTTP_400_BAD_REQUEST)
             
-            serializer=self.serializer_class(task, data= request.data)
-
-            if serializer.is_valid():
-                serializer.save()
-                return Response(data = serializer.data, status = status.HTTP_200_OK)
-
-
-            return Response(data=serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-        
-        else:
             return Response({'error': 'Only Supervisor can fully update the Task. Intern can only partial update the task.'}, status=status.HTTP_403_FORBIDDEN)
+
+        return Response({'error': 'Task does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
 
     
     def partial_update(self, request, id=None):
         task = self.model.objects.get(id=id)
 
-        if task.assignee == request.user:
-            request.data['tasktitle'] = task.tasktitle
-            request.data['assignor'] = task.assignor.id
-            request.data['assignee'] = task.assignee.id
+        if task:
 
-            serializer = self.serializer_class(task, data= request.data)
+            if task.assignee == request.user:
+                request.data['tasktitle'] = task.tasktitle
+                request.data['assignor'] = task.assignor.id
+                request.data['assignee'] = task.assignee.id
 
-            if serializer.is_valid():
-                serializer.save()
-                return Response(data = serializer.data, status = status.HTTP_200_OK)
+                serializer = self.serializer_class(task, data= request.data)
 
-            return Response(data=serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(data = serializer.data, status = status.HTTP_200_OK)
 
-        else:
+                return Response(data=serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
             return Response({'error': 'Only task assignee can mention task completion'}, status=status.HTTP_403_FORBIDDEN)
+        
+        return Response({'error': 'Task does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def destroy(self, request, id=None):
+        task = self.model.objects.get(id=id)
+
+        if task:
+            if task.assignor == request.user:
+                task.delete()
+                return Response(status = status.HTTP_204_NO_CONTENT)
+            
+            return Response({'error': 'Only Supervisor can delete the task'}, status=status.HTTP_403_FORBIDDEN)
+
+        return Response({'error': 'Task does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
