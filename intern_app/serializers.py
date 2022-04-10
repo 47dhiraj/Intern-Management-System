@@ -1,3 +1,4 @@
+from email.policy import default
 from rest_framework import serializers, status
 from rest_framework.validators import ValidationError
 
@@ -50,7 +51,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField()
+    username = serializers.CharField(read_only = True)
     email = serializers.EmailField(read_only = True)
     isSupervisor = serializers.SerializerMethodField(read_only = True)
     isIntern = serializers.SerializerMethodField(read_only = True)
@@ -59,7 +60,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'isSupervisor', 'isIntern', 'created_at', 'updated_at']
+        fields = ['id', 'username', 'email', 'isSupervisor', 'isIntern', 'created_at', 'updated_at']
 
     def get_isSupervisor(self, obj):                            
         return obj.is_staff
@@ -75,7 +76,7 @@ class UserSerializerWithToken(UserSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'isSupervisor', 'isIntern', 'created_at', 'updated_at', 'tokens']
+        fields = ['id', 'username', 'email', 'isSupervisor', 'isIntern', 'created_at', 'updated_at', 'tokens']
 
     def get_tokens(self, obj):
         refresh = RefreshToken.for_user(obj)
@@ -108,11 +109,9 @@ class LogoutSerializer(serializers.Serializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     slug = serializers.SerializerMethodField(read_only=True)              # SerializerMethodField() ko help batw model ma nai navako data lai serialize garera frontend ma pathauna cha vani yesari pathauna sakincha
+    is_completed = serializers.BooleanField(default=False)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
-    assignee = UserSerializer()
-    assignor = UserSerializer()
-
 
     class Meta:
         model = Task

@@ -40,11 +40,33 @@ class TaskViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Unauthroized to access the task'}, status=status.HTTP_403_FORBIDDEN)
         
 
+    def create(self, request):
+        if request.user.is_superuser or request.user.is_supervisor:
 
+            request.data['assignor'] = request.user.id
+            serializer = self.serializer_class(data= request.data)
 
+            if serializer.is_valid():
+                serializer.save()
+
+                return Response(
+                    status= status.HTTP_201_CREATED,
+                    data= serializer.data
+                    )
+            else:
+                return Response(
+                    data= serializer.errors,
+                    status= status.HTTP_400_BAD_REQUEST
+                    )
         
+        else:
+            return Response({'error': 'Unauthroized to create the task'}, status=status.HTTP_403_FORBIDDEN)
+            
 
+            
 
+            
+    
 
 
 
@@ -58,8 +80,5 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 
 
-
-
-  
 
 
