@@ -67,9 +67,7 @@ def user_post_save_receiver(sender, instance, created, *args, **kwargs):
     if created:
         instance.is_active = True
         instance.is_verified = True
-        instance.set_password(instance.password)
         instance.save()
-
 
 class Task(models.Model):
     tasktitle = models.CharField(max_length=300, unique=True, db_index=True)
