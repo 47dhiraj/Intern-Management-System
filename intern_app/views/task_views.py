@@ -61,7 +61,25 @@ class TaskViewSet(viewsets.ModelViewSet):
         
         else:
             return Response({'error': 'Unauthroized to create the task'}, status=status.HTTP_403_FORBIDDEN)
+    
+
+    def update(self, request, id=None):
+        task = self.model.objects.get(id=id)
+
+        if task.assignor == request.user:
+            request.data['assignor'] = request.user.id
             
+            serializer=self.serializer_class(task, data= request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(data = serializer.data, status = status.HTTP_200_OK)
+
+
+            return Response(data=serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            return Response({'error': 'Only Supervisor can fully update the Task. Intern can only partial update the task.'}, status=status.HTTP_403_FORBIDDEN)
 
             
 
