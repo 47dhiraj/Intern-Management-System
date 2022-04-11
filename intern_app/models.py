@@ -87,7 +87,7 @@ class Task(models.Model):
 
 class Attendance(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name='attendant')
-    status = models.BooleanField(default=False)
+    status = models.BooleanField(default=True)
     date = models.DateField(auto_now_add=True)
     work_start_time = models.TimeField(default=datetime.now().time())
     work_end_time = models.TimeField(default=datetime.now().time())                                        

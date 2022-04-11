@@ -13,6 +13,7 @@ from django.utils.text import slugify
 
 
 
+
 class RegisterSerializer(serializers.ModelSerializer):
 
     email = serializers.EmailField(required=True)
@@ -50,6 +51,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 
+
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(read_only = True)
     email = serializers.EmailField(read_only = True)
@@ -68,7 +70,6 @@ class UserSerializer(serializers.ModelSerializer):
     def get_isIntern(self, obj):                            
         return obj.is_intern
     
-
 
 
 class UserSerializerWithToken(UserSerializer):
@@ -90,6 +91,7 @@ class UserSerializerWithToken(UserSerializer):
         return tokens
 
 
+
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
     default_error_message = {'bad_token': ('Token expired or not valid') }
@@ -103,6 +105,8 @@ class LogoutSerializer(serializers.Serializer):
             RefreshToken(self.token).blacklist()                            
         except TokenError:
             raise serializers.ValidationError('Token expired or not valid')
+
+
 
 
 
@@ -138,8 +142,11 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
 
+
+
 class AttendanceSerializer(serializers.ModelSerializer):
     date = serializers.DateField(read_only=True)
+    status = serializers.BooleanField(read_only=True)
     attendant = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -154,10 +161,21 @@ class AttendanceSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
+    def validate(self, data):
+        if data.get('user') == None:
+            raise ValidationError(detail="User is required for attendance", code=status.HTTP_406_NOT_ACCEPTABLE)
+
+        if data.get('work_start_time') and data.get('work_end_time'):
+            if data['work_start_time'] <= data['work_end_time']:
+                raise serializers.ValidationError(detail="Working time does not seems realistic/correct. Re-input it.", code=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            data['work_start_time'] = "11:00:00"
+            data['work_end_time'] = "05:00:00"
+
+        return data
 
 
 
-    
 
 
     

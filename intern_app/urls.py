@@ -33,7 +33,10 @@ urlpatterns = [
     path('logout/', user_views.LogoutView.as_view(), name="logout"),
 
     # URL for Attendance
-    path('attendance/', attendance_views.getAttendances, name='attendances'),
+    path('attendance/', attendance_views.getAttendances, name='attendance'),
+
+    path('attendance/add', attendance_views.doAttendance, name='add_attendance'),
+    
 
 
     # All URL for the Intern Task
