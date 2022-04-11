@@ -69,6 +69,8 @@ def user_post_save_receiver(sender, instance, created, *args, **kwargs):
         instance.is_verified = True
         instance.save()
 
+
+
 class Task(models.Model):
     tasktitle = models.CharField(max_length=300, unique=True, db_index=True)
     assignee = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name='assignee')

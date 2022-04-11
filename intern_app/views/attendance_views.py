@@ -3,22 +3,23 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
 
-from django.db.models import Max, Count
-
 from datetime import date
 
 from ..models import User, Attendance
 from intern_app.serializers import UserSerializer, AttendanceSerializer
 
-from drf_yasg.utils import swagger_auto_schema                                                          # swagger ko auto schema ko laig import gareko
+from drf_yasg.utils import swagger_auto_schema                                                          
 
 
 
-@swagger_auto_schema(method='GET')
+@swagger_auto_schema(method='GET', operation_summary = "Get the attendances of intern.")
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getAttendances(request):
-
+    """
+        This url requires does not requires any parameter.
+       
+    """
     if request.user.is_staff == True:
         if request.method == 'GET':
             attendances = Attendance.objects.all()
@@ -27,19 +28,25 @@ def getAttendances(request):
 
 
     user = request.user
-    # attendances = user.attendance_set.all()                       # if not mentioned related_name in models file
-    attendances = user.attendant.all()                              # if related_name is mentioned in models file then, can only use related_name to acces child objects
+    attendances = user.attendant.all()                              
     serializer = AttendanceSerializer(attendances, many=True)
     return Response(serializer.data)
 
 
 
 
-@swagger_auto_schema(method='POST', request_body=AttendanceSerializer)
+@swagger_auto_schema(method='POST', request_body=AttendanceSerializer, operation_summary = "Add Today's Attendance")
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])                              # only authenticated user can do attendance
+@permission_classes([IsAuthenticated])
 def doAttendance(request):
-    
+    """
+        This url requires the following input paramters :
+        ```
+            user: integer (required)
+            work_start_time: string in the format of hh:mm:ss
+            work_end_time: string in the format of hh:mm:ss
+        ```
+    """
     if request.user.id == request.data['user']:
 
         request.data['user'] = request.user.id

@@ -112,7 +112,7 @@ class LogoutSerializer(serializers.Serializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    slug = serializers.SerializerMethodField(read_only=True)              # SerializerMethodField() ko help batw model ma nai navako data lai serialize garera frontend ma pathauna cha vani yesari pathauna sakincha
+    slug = serializers.SerializerMethodField(read_only=True)              
     is_completed = serializers.BooleanField(default=False)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
@@ -120,14 +120,13 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ['tasktitle', 'assignee', 'assignor', 'slug', 'is_completed', 'created_at', 'updated_at']
-        # fields = '__all__'
 
 
-    def get_slug(self, obj):                    # custom function for SerializerMethodField()
+    def get_slug(self, obj):                    
         return slugify(obj.tasktitle)
 
 
-    def validate(self, validated_data):         # validate() is serializers inbuilt method for validating data before saving into models or tables
+    def validate(self, validated_data):         
         if validated_data.get('tasktitle'):
             tasktitle = validated_data.get('tasktitle')
             regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
@@ -152,7 +151,6 @@ class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attendance
         fields = ['user', 'status', 'date', 'work_start_time', 'work_end_time', 'attendant']
-        # fields = '__all__'
 
 
     def get_attendant(self, obj):                    

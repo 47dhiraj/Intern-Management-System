@@ -22,12 +22,10 @@ import jwt
 
 from ..serializers import RegisterSerializer, UserSerializerWithToken, LogoutSerializer
 
-from drf_yasg.utils import swagger_auto_schema                                                          # swagger ko auto schema ko laig import gareko
-from drf_yasg import openapi                                                                            # openapi lai import gareko
+from drf_yasg.utils import swagger_auto_schema                                                          
+from drf_yasg import openapi                                                                            
 
 
-
-# Create your views here.
 
 class RegisterView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -108,7 +106,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
     
 
-
 class MyTokenObtainPairView(TokenObtainPairView):       
     """
         Login to the system.
@@ -121,6 +118,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
     """
     serializer_class = MyTokenObtainPairSerializer
     
+
 
 class LogoutView(generics.GenericAPIView):
     serializer_class = LogoutSerializer
