@@ -84,6 +84,9 @@ admin.site.register(Task, TaskAdmin)
 
 
 class AttendanceAdmin(admin.ModelAdmin):
-    list_display = ['user', 'status', 'date']
+    list_display = ['user', 'status', 'date', 'work_start_time', 'work_end_time']
+    fieldsets = (
+        (None, {'fields': ('user', 'status', 'work_start_time', 'work_end_time')}),
+    )
 
 admin.site.register(Attendance, AttendanceAdmin)

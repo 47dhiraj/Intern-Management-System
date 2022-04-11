@@ -3,7 +3,9 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
 
-from datetime import datetime
+from django.db.models import Max, Count
+
+from datetime import date
 
 from ..models import User, Attendance
 from intern_app.serializers import UserSerializer, AttendanceSerializer
@@ -39,10 +41,17 @@ def getAttendances(request):
 def doAttendance(request):
     
     if request.user.id == request.data['user']:
+
         request.data['user'] = request.user.id
         serializer = AttendanceSerializer(data= request.data)
 
         if serializer.is_valid():
+            attendances = Attendance.objects.filter(user=request.user)
+
+            for attendace in attendances:
+                if attendace.date == date.today():
+                    return Response({'error': 'Attendance for today has already been done'}, status=status.HTTP_403_FORBIDDEN)
+                    
             serializer.save()
 
             return Response(
