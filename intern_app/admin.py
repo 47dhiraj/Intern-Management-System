@@ -84,6 +84,6 @@ admin.site.register(Task, TaskAdmin)
 
 
 class AttendanceAdmin(admin.ModelAdmin):
-    list_display = ['intern', 'status', 'date']
+    list_display = ['user', 'status', 'date']
 
 admin.site.register(Attendance, AttendanceAdmin)

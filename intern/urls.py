@@ -32,7 +32,7 @@ urlpatterns = [
    path('admin/', admin.site.urls),
 
     
-   path('', include('intern_app.urls')),
+   path('api/', include('intern_app.urls')),
 
    
 

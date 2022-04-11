@@ -1,7 +1,7 @@
 from django.urls import path
 from django.urls import include, re_path
 
-from intern_app.views import user_views, task_views
+from intern_app.views import user_views, task_views, attendance_views
 
 from rest_framework_simplejwt.views import (TokenRefreshView, )
 
@@ -32,15 +32,16 @@ urlpatterns = [
     # URL for logging out the user
     path('logout/', user_views.LogoutView.as_view(), name="logout"),
 
+    # URL for Attendance
+    path('attendance/', attendance_views.getAttendances, name='attendances'),
 
 
-
+    # All URL for the Intern Task
     re_path(r'^task/', include(router.urls))
-
     
 ]
 
 
-# Root API Path of TaskViewSet ==> http://127.0.0.1:8000/task
-# Particular task path ==> http://127.0.0.1:8000/task/pk           # pk vannale primary key (ahile hamro project ko case ma, id chai primary key ho)
+# Root API Path of TaskViewSet ==> http://127.0.0.1:8000/api/task
+# Particular task path ==> http://127.0.0.1:8000/api/task/pk           # pk vannale primary key (ahile hamro project ko case ma, id chai primary key ho)
 

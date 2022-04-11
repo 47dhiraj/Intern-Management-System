@@ -86,7 +86,7 @@ class Task(models.Model):
 
 
 class Attendance(models.Model):
-    intern = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name='intern')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name='attendant')
     status = models.BooleanField(default=False)
     date = models.DateField(auto_now_add=True)
     work_start_time = models.TimeField(default=datetime.now().time())
@@ -96,4 +96,4 @@ class Attendance(models.Model):
         ordering: ['-date']
 
     def __str__(self):
-        return self.intern.username + ' ' + str(self.date)
+        return self.user.username + ' ' + str(self.date)

@@ -138,5 +138,26 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
 
+class AttendanceSerializer(serializers.ModelSerializer):
+    date = serializers.DateField(read_only=True)
+    attendant = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Attendance
+        fields = ['user', 'status', 'date', 'work_start_time', 'work_end_time', 'attendant']
+        # fields = '__all__'
 
 
+    def get_attendant(self, obj):                    
+        user = obj.user                                         
+        serializer = UserSerializer(user, many=False)           
+        return serializer.data
+
+
+
+
+
+    
+
+
+    
